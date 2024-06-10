@@ -141,6 +141,10 @@ contract BasemailAccount is ERC721 {
         return holderAccounts[holder_];
     }
 
+    function getAccountId(string calldata username_) external view returns (uint256) {
+        return nameToId[_validateExistingUsername(username_)];
+    }
+
     function getUsernames(address holder_) external view returns (string[] memory) {
         uint256[] memory accountIds = holderAccounts[holder_];
         uint256 len = accountIds.length;
@@ -149,6 +153,11 @@ contract BasemailAccount is ERC721 {
             usernames[i] = _bytes32ToStr(idToName[accountIds[i]]);
         }
         return usernames;
+    }
+
+    function getUsername(uint256 accountId_) external view returns (string memory) {
+        if (accountId_ >= idCounter || !_exists(accountId_)) revert AccountDoesNotExist();
+        return _bytes32ToStr(idToName[accountId_]);
     }
 
     function _bytes32ToStr(bytes32 x_) internal pure returns (string memory) {
