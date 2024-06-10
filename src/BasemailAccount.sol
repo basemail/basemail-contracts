@@ -193,11 +193,11 @@ contract BasemailAccount is ERC721 {
         // and ends with a letter or number
         for (uint256 i; i < len; i++) {
             bytes1 char = usernameBytes[i];
-            // If the username doesn't start and end with a letter or number, revert
+            // If the username doesn't start and end with a letter, revert
+            // We do this to prevent usernames that shadow account IDs
             if (i == 0 || i == len - 1) {
                 if (
-                    !(char >= 0x30 && char <= 0x39) // 0-9
-                        && !(char >= 0x41 && char <= 0x5A) // A-Z
+                        !(char >= 0x41 && char <= 0x5A) // A-Z
                         && !(char >= 0x61 && char <= 0x7A) // a-z
                 ) revert UsernameInvalid();
             }
