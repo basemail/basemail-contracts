@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity 0.8.19;
 
-import {ERC721} from "dependencies/solady-0.0.201/src/tokens/ERC721.sol";
+import {ERC721} from "@solady-0.0.201/src/tokens/ERC721.sol";
 
 contract BasemailAccount is ERC721 {
     // ========== ERRORS ========== //
