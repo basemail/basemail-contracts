@@ -10,6 +10,7 @@ contract BasemailAccount is ERC721 {
     error AccountDoesNotExist();
     error OnlyTokenHolder();
     error UsernameInvalid();
+    error TransfersDiabled();
 
     // ========== EVENTS ========== //
 
@@ -251,9 +252,17 @@ contract BasemailAccount is ERC721 {
         return "";
     }
 
+    // ========== ERC5192 Minimal Soulbound NFTs ========== //
+
+    // All minted tokens are soulbound to the recipient
+    // Tokens can be burned by the holder
+    function locked(uint256 id) public view returns (bool) {
+        return ownerOf(id) != address(0);
+    }
+
     // ========== ERC721 OVERRIDES ========== //
 
-    // We modify transfers (including mints and burns) to update the holderAccounts mapping
+    // We modify mints and burns to update the holderAccounts mapping, other transfers aren't allowed
     function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal override {
         // Remove the accounts from the existing holder's accounts array
         if (from != address(0)) {
@@ -271,6 +280,44 @@ contract BasemailAccount is ERC721 {
         // Add to the new holder's accounts array
         if (to != address(0)) {
             holderAccounts[to].push(tokenId);
+        }
+    }
+
+    function approve(address, uint256) public payable override {
+        revert TransfersDiabled();
+    }
+
+    function isApprovedForAll(address, address operator) public view override returns (bool) {
+        return operator == address(this);
+    }
+
+    function setApprovalForAll(address, bool) public pure override {
+        revert TransfersDiabled();
+    }
+
+    function transferFrom(address, address, uint256) public payable override {
+        revert TransfersDiabled();
+    }
+
+    function safeTransferFrom(address, address, uint256) public payable override {
+        revert TransfersDiabled();
+    }
+
+    function safeTransferFrom(address, address, uint256, bytes calldata) public payable override {
+        revert TransfersDiabled();
+    }
+
+
+    // Update the supportsInterface function to include ERC-5192 Minimal Soulbound NFTs
+    /// @dev Returns true if this contract implements the interface defined by `interfaceId`.
+    /// See: https://eips.ethereum.org/EIPS/eip-165
+    /// This function call must use less than 30000 gas.
+    function supportsInterface(bytes4 interfaceId) public pure override returns (bool result) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            let s := shr(224, interfaceId)
+            // ERC165: 0x01ffc9a7, ERC721: 0x80ac58cd, ERC721Metadata: 0x5b5e139f, ERC5192: 0xb45a3c0e
+            result := or(or(or(eq(s, 0x01ffc9a7), eq(s, 0x80ac58cd)), eq(s, 0x5b5e139f)), eq(s, 0xb45a3c0e))
         }
     }
 }
