@@ -9,6 +9,7 @@ import {BasemailAccount} from "src/BasemailAccount.sol";
 contract Deploy is Script {
     function deploy() external {
         // Deploy BasemailAccount contract
+        vm.broadcast();
         BasemailAccount basemailAccount = new BasemailAccount();
         console2.log("BasemailAccount deployed at:", address(basemailAccount));
     }
